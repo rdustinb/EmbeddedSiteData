@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Mostly Fluid - Quiz</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: rgb(46,46,46);
+      }
+
+      .box50 {
+        height: 100px;
+        width: 100%;
+      }
+
+      .box33 {
+        height: 100px;
+        width: 100%;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .header {
+        margin-left: 33.3333%;
+        background: #aaaaaa;
+        width: 33.3333%;
+      }
+
+      @media screen and (min-width: 550px){
+        .box50 {
+          height: 120px;
+          width: 50%;
+        }
+        .box33 {
+          height: 120px;
+          width: 33.3333%;
+        }
+      }
+
+      @media screen and (min-width: 1024px){
+        .container {
+          width: 1024px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+    </style>
+    <script src="constants.js"></script>
+    <script src="data.js"></script>
+    <script src="graph.js"></script>
+  </head>
+  <body>
+    <script>
+      genTestData();
+    </script>
+    <div class="header">
+      Master Bedroom
+    </div>
+    <div class="container">
+      <div class="box50" id="MasterBedroom.temperature">
+        <canvas id="temperature"></canvas>
+        <script>
+          var MasterBedroomTemperatureCanvas = document.getElementById("temperature");
+          var MasterBedroomTemperatureCtx = MasterBedroomTemperatureCanvas.getContext("2d");
+          redrawMasterBedroomTemperatureCanvas();
+          function redrawMasterBedroomTemperatureCanvas(){
+            MasterBedroomTemperatureCanvas.width  = document.getElementById("MasterBedroom.temperature").offsetWidth;
+            MasterBedroomTemperatureCanvas.height = document.getElementById("MasterBedroom.temperature").offsetHeight;
+            drawSensorWidget(MasterBedroomTemperatureCtx,__systemData[0]["temperature"],
+              MasterBedroomTemperatureCanvas.width-2*CxOffset,MasterBedroomTemperatureCanvas.height-CyOffset,
+              "temperature"
+            );
+          };
+        </script>
+      </div>
+      <div class="box50" id="MasterBedroom.humidity">
+        <canvas id="humidity"></canvas>
+        <script>
+          var MasterBedroomHumidityCanvas = document.getElementById("humidity");
+          var MasterBedroomHumidityCtx = MasterBedroomHumidityCanvas.getContext("2d");
+          redrawMasterBedroomHumidityCanvas();
+          function redrawMasterBedroomHumidityCanvas(){
+            MasterBedroomHumidityCanvas.width  = document.getElementById("MasterBedroom.humidity").offsetWidth;
+            MasterBedroomHumidityCanvas.height = document.getElementById("MasterBedroom.humidity").offsetHeight;
+            drawSensorWidget(MasterBedroomHumidityCtx,__systemData[0]["humidity"],
+              MasterBedroomHumidityCanvas.width-2*CxOffset,MasterBedroomHumidityCanvas.height-CyOffset,
+              "humidity"
+            );
+          };
+        </script>
+      </div>
+    </div>
+    <hr>
+    <script>
+      function redrawAll(){
+        redrawMasterBedroomTemperatureCanvas();
+        redrawMasterBedroomHumidityCanvas();
+      };
+      var decDelay;
+      function delayRedraw(){
+        clearTimeout(decDelay); // Start the timeout over again if there is another resize event
+        decDelay = setTimeout(redrawAll, 65); // Delay for 100ms before calling this function
+      };
+      window.addEventListener("resize", delayRedraw);
+    </script>
+  </body>
+</html>
