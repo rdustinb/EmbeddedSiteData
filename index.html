@@ -56,48 +56,44 @@
     <script src="graph.js"></script>
   </head>
   <body>
-    <script>
-      genTestData();
-    </script>
+    <!-- The actual page elements -->
     <div class="header">
       Master Bedroom
     </div>
     <div class="container">
       <div class="box50" id="MasterBedroom.temperature">
         <canvas id="temperature"></canvas>
-        <script>
-          function redrawMasterBedroomTemperatureCanvas(){
-            var canvas = document.getElementById("temperature");
-            var ctx = canvas.getContext("2d");
-            canvas.width  = document.getElementById("MasterBedroom.temperature").offsetWidth;
-            canvas.height = document.getElementById("MasterBedroom.temperature").offsetHeight;
-            drawSensorWidget(ctx,__systemData[0]["temperature"],
-              canvas.width-2*CxOffset,canvas.height-CyOffset,
-              "temperature"
-            );
-          };
-          redrawMasterBedroomTemperatureCanvas();
-        </script>
       </div>
       <div class="box50" id="MasterBedroom.humidity">
         <canvas id="humidity"></canvas>
-        <script>
-          function redrawMasterBedroomHumidityCanvas(){
-            var canvas = document.getElementById("humidity");
-            var ctx = canvas.getContext("2d");
-            canvas.width  = document.getElementById("MasterBedroom.humidity").offsetWidth;
-            canvas.height = document.getElementById("MasterBedroom.humidity").offsetHeight;
-            drawSensorWidget(ctx,__systemData[0]["humidity"],
-              canvas.width-2*CxOffset,canvas.height-CyOffset,
-              "humidity"
-            );
-          };
-          redrawMasterBedroomHumidityCanvas();
-        </script>
       </div>
     </div>
     <hr>
+    <!-- The drawing script stuff for each element -->
     <script>
+      function redrawMasterBedroomTemperatureCanvas(){
+        var canvas = document.getElementById("temperature");
+        var ctx = canvas.getContext("2d");
+        canvas.width  = document.getElementById("MasterBedroom.temperature").offsetWidth;
+        canvas.height = document.getElementById("MasterBedroom.temperature").offsetHeight;
+        drawSensorWidget(ctx,__systemData[0]["temperature"],
+          canvas.width-2*CxOffset,canvas.height-CyOffset,
+          "temperature"
+        );
+      };
+      function redrawMasterBedroomHumidityCanvas(){
+        var canvas = document.getElementById("humidity");
+        var ctx = canvas.getContext("2d");
+        canvas.width  = document.getElementById("MasterBedroom.humidity").offsetWidth;
+        canvas.height = document.getElementById("MasterBedroom.humidity").offsetHeight;
+        drawSensorWidget(ctx,__systemData[0]["humidity"],
+          canvas.width-2*CxOffset,canvas.height-CyOffset,
+          "humidity"
+        );
+      };
+      genTestData();
+      redrawMasterBedroomTemperatureCanvas();
+      redrawMasterBedroomHumidityCanvas();
       function redrawAll(){
         redrawMasterBedroomTemperatureCanvas();
         redrawMasterBedroomHumidityCanvas();
@@ -105,7 +101,7 @@
       var decDelay;
       function delayRedraw(){
         clearTimeout(decDelay); // Start the timeout over again if there is another resize event
-        decDelay = setTimeout(redrawAll, 65); // Delay for 100ms before calling this function
+        decDelay = setTimeout(redrawAll, 65); // Delay for 65ms before calling this function
       };
       window.addEventListener("resize", delayRedraw);
     </script>
