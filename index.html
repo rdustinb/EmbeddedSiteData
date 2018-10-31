@@ -66,33 +66,33 @@
       <div class="box50" id="MasterBedroom.temperature">
         <canvas id="temperature"></canvas>
         <script>
-          var MasterBedroomTemperatureCanvas = document.getElementById("temperature");
-          var MasterBedroomTemperatureCtx = MasterBedroomTemperatureCanvas.getContext("2d");
-          redrawMasterBedroomTemperatureCanvas();
           function redrawMasterBedroomTemperatureCanvas(){
-            MasterBedroomTemperatureCanvas.width  = document.getElementById("MasterBedroom.temperature").offsetWidth;
-            MasterBedroomTemperatureCanvas.height = document.getElementById("MasterBedroom.temperature").offsetHeight;
-            drawSensorWidget(MasterBedroomTemperatureCtx,__systemData[0]["temperature"],
-              MasterBedroomTemperatureCanvas.width-2*CxOffset,MasterBedroomTemperatureCanvas.height-CyOffset,
+            var canvas = document.getElementById("temperature");
+            var ctx = canvas.getContext("2d");
+            canvas.width  = document.getElementById("MasterBedroom.temperature").offsetWidth;
+            canvas.height = document.getElementById("MasterBedroom.temperature").offsetHeight;
+            drawSensorWidget(ctx,__systemData[0]["temperature"],
+              canvas.width-2*CxOffset,canvas.height-CyOffset,
               "temperature"
             );
           };
+          redrawMasterBedroomTemperatureCanvas();
         </script>
       </div>
       <div class="box50" id="MasterBedroom.humidity">
         <canvas id="humidity"></canvas>
         <script>
-          var MasterBedroomHumidityCanvas = document.getElementById("humidity");
-          var MasterBedroomHumidityCtx = MasterBedroomHumidityCanvas.getContext("2d");
-          redrawMasterBedroomHumidityCanvas();
           function redrawMasterBedroomHumidityCanvas(){
-            MasterBedroomHumidityCanvas.width  = document.getElementById("MasterBedroom.humidity").offsetWidth;
-            MasterBedroomHumidityCanvas.height = document.getElementById("MasterBedroom.humidity").offsetHeight;
-            drawSensorWidget(MasterBedroomHumidityCtx,__systemData[0]["humidity"],
-              MasterBedroomHumidityCanvas.width-2*CxOffset,MasterBedroomHumidityCanvas.height-CyOffset,
+            var canvas = document.getElementById("humidity");
+            var ctx = canvas.getContext("2d");
+            canvas.width  = document.getElementById("MasterBedroom.humidity").offsetWidth;
+            canvas.height = document.getElementById("MasterBedroom.humidity").offsetHeight;
+            drawSensorWidget(ctx,__systemData[0]["humidity"],
+              canvas.width-2*CxOffset,canvas.height-CyOffset,
               "humidity"
             );
           };
+          redrawMasterBedroomHumidityCanvas();
         </script>
       </div>
     </div>
