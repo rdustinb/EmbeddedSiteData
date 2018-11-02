@@ -91,18 +91,28 @@
           "humidity"
         );
       };
-      genTestData();
-      redrawMasterBedroomTemperatureCanvas();
-      redrawMasterBedroomHumidityCanvas();
       function redrawAll(){
         redrawMasterBedroomTemperatureCanvas();
         redrawMasterBedroomHumidityCanvas();
       };
-      var decDelay;
       function delayRedraw(){
         clearTimeout(decDelay); // Start the timeout over again if there is another resize event
-        decDelay = setTimeout(redrawAll, 65); // Delay for 65ms before calling this function
+        decDelay = setTimeout(redrawAll, 30); // Delay for 30ms before calling this function
       };
+
+      // Test function only, not used when sensors are actually being polled
+      genTestData();
+
+      // This is the initial redraw command for the entire page, called once when the page first
+      // loads on the client machine.
+      redrawAll();
+
+      // Everything in this script element is executed and ellaborated sequentially but the 
+      // following registers the delayRedraw function into the event of the window changing
+      // size, this is an asynchronous call which is why there needs to be a delay function
+      // to not have the redraw as fast as the processor and OS on the client machine
+      // possibly can.
+      var decDelay;
       window.addEventListener("resize", delayRedraw);
     </script>
   </body>
