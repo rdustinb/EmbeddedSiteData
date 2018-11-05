@@ -8,7 +8,7 @@ CwidgetWidthSmall   = CwidgetWidth*2/3;
 CwidgetHeightSmall  = CwidgetHeight*3/4;
 CwidgetPlotYMaxMult = 0.70;
 
-ClabelFont = "40px Arial";
+ClabelFont = "34px Arial";
 CcurrentFont = "60px Courier";
 CcurrentUnitFont = "18px Courier";
 

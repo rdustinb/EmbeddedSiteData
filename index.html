@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Mostly Fluid - Quiz</title>
+    <title>Sensor Control Panel</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style type="text/css">
@@ -27,6 +27,7 @@
       }
 
       .header {
+        height: 30px;
         margin-left: 33.3333%;
         background: #aaaaaa;
         width: 33.3333%;
@@ -57,43 +58,47 @@
   </head>
   <body>
     <!-- The actual page elements -->
-    <div class="header">
-      Master Bedroom
-    </div>
     <div class="container">
-      <div class="box50" id="MasterBedroom.temperature">
+      <div class="header" id="0.label">
+        <canvas id="label"></canvas>
+      </div>
+      <div class="box50" id="0.temperature">
         <canvas id="temperature"></canvas>
       </div>
-      <div class="box50" id="MasterBedroom.humidity">
+      <div class="box50" id="0.humidity">
         <canvas id="humidity"></canvas>
       </div>
     </div>
     <hr>
     <!-- The drawing script stuff for each element -->
     <script>
-      function redrawMasterBedroomTemperatureCanvas(){
-        var canvas = document.getElementById("temperature");
+      function redrawHeader(divId, canvasId){
+        var canvas = document.getElementById(canvasId);
         var ctx = canvas.getContext("2d");
-        canvas.width  = document.getElementById("MasterBedroom.temperature").offsetWidth;
-        canvas.height = document.getElementById("MasterBedroom.temperature").offsetHeight;
-        drawSensorWidget(ctx,__systemData[0]["temperature"],
-          canvas.width-2*CxOffset,canvas.height-CyOffset,
-          "temperature"
-        );
+        canvas.width  = document.getElementById(divId).offsetWidth;
+        canvas.height = document.getElementById(divId).offsetHeight;
+        ctx.font = ClabelFont;
+        ctx.fillStyle = CwidgetCurrentColor;
+        ctx.fillText(__systemData[0][canvasId], 5, canvas.height-2);
       };
-      function redrawMasterBedroomHumidityCanvas(){
-        var canvas = document.getElementById("humidity");
+      function redrawCanvas(divId, canvasId){
+        // Generic sensor drawing function that requires the following:
+        //  divId     - the ID of the div tag that this canvas being redrawn is within
+        //  canvasId  - the ID of this canvas being redrawn
+        // The canvasId and the sensor argument for the type must be the same otherwise things will be weird
+        var canvas = document.getElementById(canvasId);
         var ctx = canvas.getContext("2d");
-        canvas.width  = document.getElementById("MasterBedroom.humidity").offsetWidth;
-        canvas.height = document.getElementById("MasterBedroom.humidity").offsetHeight;
-        drawSensorWidget(ctx,__systemData[0]["humidity"],
+        canvas.width  = document.getElementById(divId).offsetWidth;
+        canvas.height = document.getElementById(divId).offsetHeight;
+        drawSensorWidget(ctx,__systemData[0][canvasId],
           canvas.width-2*CxOffset,canvas.height-CyOffset,
-          "humidity"
+          canvasId
         );
       };
       function redrawAll(){
-        redrawMasterBedroomTemperatureCanvas();
-        redrawMasterBedroomHumidityCanvas();
+        redrawHeader("0.label", "label");
+        redrawCanvas("0.temperature","temperature");
+        redrawCanvas("0.humidity","humidity");
       };
       function delayRedraw(){
         clearTimeout(decDelay); // Start the timeout over again if there is another resize event
