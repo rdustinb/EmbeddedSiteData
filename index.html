@@ -11,26 +11,26 @@
         background-color: rgb(46,46,46);
       }
 
-      .box50 {
-        height: 100px;
-        width: 100%;
-      }
-
-      .box33 {
-        height: 100px;
-        width: 100%;
-      }
-
       .container {
         display: flex;
         flex-wrap: wrap;
       }
 
+      .box50 {
+        height: 120px;
+        width: 100%;
+      }
+
+      .box33 {
+        height: 120px;
+        width: 100%;
+      }
+
       .header {
         height: 30px;
-        margin-left: 33.3333%;
+        width: 100%;
+        margin: 5px;
         background: #aaaaaa;
-        width: 33.3333%;
       }
 
       @media screen and (min-width: 550px){
@@ -77,9 +77,17 @@
         var ctx = canvas.getContext("2d");
         canvas.width  = document.getElementById(divId).offsetWidth;
         canvas.height = document.getElementById(divId).offsetHeight;
+        // Need to specify the font size before we calculate the width of the
+        // text to be printed for centering otherwise the default font size
+        // will be used and will be the incorrect width
         ctx.font = ClabelFont;
+        // This calculates the width of the text about to be printed to the
+        // canvas and then determines the necessary offset to start the text
+        // so that it is centered in the window
+        var widthOfTitle = ctx.measureText(__systemData[0][canvasId]).width
+        var xOffset = (canvas.width-widthOfTitle-10)/2;
         ctx.fillStyle = CwidgetCurrentColor;
-        ctx.fillText(__systemData[0][canvasId], 5, canvas.height-2);
+        ctx.fillText(__systemData[0][canvasId], 5+xOffset, canvas.height-2);
       };
       function redrawCanvas(divId, canvasId){
         // Generic sensor drawing function that requires the following:
