@@ -380,6 +380,8 @@ void readRegSpace(uint8_t *address){
 
 void configCommsPipe(uint8_t *data){
   // Write the current Configuration to the nRF24L01
+  // LSByte of the address is expected to be in data[0], the MSByte is expected to be in data[4]
+  // Rx Address of the Pipe
   digitalWrite(NRFCSn, LOW);
   SPI.transfer(0x20+0x0a);
   for(uint8_t i=0; i<5; i++){
@@ -387,6 +389,7 @@ void configCommsPipe(uint8_t *data){
   }
   digitalWrite(NRFCSn, HIGH);
   delay(1);
+  // Tx Address of the Pipe
   digitalWrite(NRFCSn, LOW);
   SPI.transfer(0x20+0x10);
   for(uint8_t i=0; i<5; i++){

@@ -81,11 +81,13 @@ void setup(){
 
   #ifdef DEBUG
   Serial.println("Magic byte value is:");
+  Serial.print("0x");
   data[0] = EEPROM.read(0);
   if(data[0] < 16){
     Serial.print("0");
   }
   Serial.print(data[0], HEX);
+  Serial.println(" ");
   Serial.println("First five EEPROM locations are:");
   Serial.print("0x");
   for(int i=1; i<6; i++){
@@ -307,6 +309,8 @@ void readRegSpace(uint8_t *address, uint8_t *data, uint8_t *length){
 
 void configCommsPipe(uint8_t *data){
   // Write the current Configuration to the nRF24L01
+  // LSByte of the address is expected to be in data[0], the MSByte is expected to be in data[4]
+  // Rx Address of the Pipe
   digitalWrite(NRFCSn, LOW);
   SPI.transfer(0x20+0x0a);
   for(uint8_t i=0; i<5; i++){
@@ -314,6 +318,7 @@ void configCommsPipe(uint8_t *data){
   }
   digitalWrite(NRFCSn, HIGH);
   delay(1);
+  // Tx Address of the Pipe
   digitalWrite(NRFCSn, LOW);
   SPI.transfer(0x20+0x10);
   for(uint8_t i=0; i<5; i++){
