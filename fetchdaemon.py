@@ -30,7 +30,10 @@ def readHtu21dData():
   __output_file = open(_THISDEVICE+".json", "a")
   __ser = serial.Serial(port="/dev/cu.usbmodem226541", baudrate=115200)
   # Program which device to access
-  __byteArray = [_LOCALWRITE,_NRFREG_TXRXADDR,0x0102030405]
+  # For the address, the LSByte as expected in the nRf devices is sent FIRST, so in the following example:
+  #   __byteArray = [_LOCALWRITE,_NRFREG_TXRXADDR,0x01,0x02,0x03,0x04,0x05]
+  # 0x01 is the LSByte and 0x05 is the MSByte of the nRf device.
+  __byteArray = [_LOCALWRITE,_NRFREG_TXRXADDR,0x01,0x02,0x03,0x04,0x05]
   # Send the device address programming to the master device
   __ser.write(__byteArray)
   # Program a remote read request of the sensor address on the remote device
