@@ -2,12 +2,18 @@
 //  1. Since I have segregated out register reads and writes of the nRF device itself from actual Tx and Rx operations,
 //    does the CE need to be active to simply read and write register in the nRF device?
 
+#define DEBUG
+
 // Communication to the nRF24L01 is over SPI
 #include <SPI.h>
 // Communication with the sensor is over I2C
 #include <Wire.h>
 // Configuration changes to the nRF24L01 is also stored in EEPROM for when power is cycled
 #include <EEPROM.h>
+
+#ifdef DEBUG
+#include <Serial.h>
+#endif
 
 /*********************************/
 /******** nRF Result ISR *********/
@@ -37,7 +43,9 @@ uint8_t *p_data = data;
 enum States {STARTUPINRX,WAITFORRX,PROCESSRX,TXPACKET,WAITFORTX} state;
 
 void setup(){
+  #ifdef DEBUG
   Serial.begin(115200);
+  #endif
   Wire.begin();
   // Setup the nRF Pins
   pinMode(NRFCSn, OUTPUT);
@@ -65,8 +73,19 @@ void setup(){
   if(EEPROM.read(0x0) == 0xa5){
     // Read the stored address for this device, address is EEPROM Address 0x1-0x6
     for(int i=1; i<6; i++){
-      data[i] = EEPROM.read(i);
+      data[i-1] = EEPROM.read(i);
     }
+    #ifdef DEBUG
+    Serial.println("Stored address found in EEPROM!");
+    Serial.print("0x");
+    for(int i=0; i<5; i++){
+      if(data[i] < 16){
+        Serial.print("0");
+      }
+      Serial.print(data[i], HEX);
+    }
+    Serial.println(" ");
+    #endif
     // Load the stored addres
     configCommsPipe(p_data);
   }
