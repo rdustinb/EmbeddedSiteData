@@ -74,18 +74,29 @@ void setup(){
     }
     #ifdef DEBUG
     Serial.println("Stored address found in EEPROM!");
-    Serial.print("0x");
-    for(int i=0; i<5; i++){
-      if(data[i] < 16){
-        Serial.print("0");
-      }
-      Serial.print(data[i], HEX);
-    }
-    Serial.println(" ");
     #endif
     // Load the stored addres
     configCommsPipe(p_data);
   }
+
+  #ifdef DEBUG
+  Serial.println("Magic byte value is:");
+  data[0] = EEPROM.read(i)
+  if(data[0] < 16){
+    Serial.print("0");
+  }
+  Serial.print(data[0], HEX);
+  Serial.println("First five EEPROM locations are:");
+  Serial.print("0x");
+  for(int i=0; i<5; i++){
+    data[0] = EEPROM.read(i)
+    if(data[0] < 16){
+      Serial.print("0");
+    }
+    Serial.print(data[0], HEX);
+  }
+  Serial.println(" ");
+  #endif
 
   // Define Initial State
   state = STARTUPINRX;
