@@ -11,10 +11,6 @@
 // Configuration changes to the nRF24L01 is also stored in EEPROM for when power is cycled
 #include <EEPROM.h>
 
-#ifdef DEBUG
-#include <Serial.h>
-#endif
-
 /*********************************/
 /******** nRF Result ISR *********/
 /*********************************/
@@ -45,6 +41,7 @@ enum States {STARTUPINRX,WAITFORRX,PROCESSRX,TXPACKET,WAITFORTX} state;
 void setup(){
   #ifdef DEBUG
   Serial.begin(115200);
+  Serial.println("Booting!");
   #endif
   Wire.begin();
   // Setup the nRF Pins
