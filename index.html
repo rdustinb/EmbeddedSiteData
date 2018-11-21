@@ -110,7 +110,7 @@
       };
       function delayRedraw(){
         clearTimeout(decDelay); // Start the timeout over again if there is another resize event
-        decDelay = setTimeout(redrawAll, 30); // Delay for 30ms before calling this function
+        decDelay = setTimeout(redrawAll, 100); // Delay for 30ms before calling this function
       };
 
       // Test function only, not used when sensors are actually being polled
