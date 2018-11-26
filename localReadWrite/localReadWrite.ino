@@ -1,3 +1,6 @@
+// Uncomment to get print statements to the serial monitor
+#define DEBUG
+
 // Communication to the nRF24L01 is over SPI
 #include <SPI.h>
 // Configuration changes to the nRF24L01 is also stored in EEPROM for when power is cycled
@@ -110,8 +113,10 @@ void loop() {
           break;
         // Default
         default:
+        #ifdef DEBUG
           Serial.print("Invalid Command -- ");
           Serial.println(p_data[0], HEX);
+        #endif
           break;
       }
       break;
@@ -122,10 +127,14 @@ void loop() {
         clearFifosAndStatus(p_status);
         // Decode the status
         if((*p_status & 0x70) == 0x10){
+        #ifdef DEBUG
           Serial.print("Tx retry limit\n");
+        #endif
           state = WAITFORCOMMAND;
         }else if((*p_status & 0x70) == 0x20){
+        #ifdef DEBUG
           Serial.print("Tx complete\n");
+        #endif
           state = WAITFORCOMMAND;
         }
       }
@@ -137,14 +146,18 @@ void loop() {
         clearFifosAndStatus(p_status);
         // Decode the status
         if((*p_status & 0x70) == 0x10){
+        #ifdef DEBUG
           Serial.print("Tx retry limit\n");
+        #endif
           state = WAITFORCOMMAND;
         }else if((*p_status & 0x70) == 0x20){
           powerUpRx();
           state = WAITFORRESP;
         }else{
+        #ifdef DEBUG
           Serial.print(*p_status, HEX);
           Serial.print(" -- WTF?!?\n");
+        #endif
         }
       }
       break;
@@ -324,8 +337,9 @@ void writeRegSpace(uint8_t *address, uint8_t *data){
     // Sensor Registers (0x40 + ) (currently read only)
   }
 
+  // TODO : is this needed for a write access or just how I was using the PySerial library
   // Null return to not lockup script
-  Serial.print("writeRegSpace\n");
+  Serial.print("\n");
 }
 
 void readRegSpace(uint8_t *address){
@@ -449,6 +463,13 @@ void powerUpRx(){
   delay(1);
 }
 
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// Debug only : replace actual read and write packet calls above with these
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 void test_writeTxPacket(uint8_t *data, uint8_t *length){
   Serial.print("*data: 0x");
   for(int i=0; i<*length; i++){
