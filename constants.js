@@ -12,18 +12,6 @@ ClabelFont = "34px Arial";
 CcurrentFont = "60px Courier";
 CcurrentUnitFont = "18px Courier";
 
-CbgColor                = '#aaaaaa';
-ClocationBgColor        = '#aaaaaa';
-ClocationLabelColor     = '#406060';
-CwidgetBgColor          = '#aaaaaa';
-CwidgetBorderColor      = '#305050';
-CwidgetCurrentColor     = '#303050';
-CwidgetCurrentUnitColor = '#505070';
-CwidgetCurrentBgColor   = '#aaaaaa';
-CwidgetTrendColor       = '#406060';
-CwidgetDataColor        = '#303050';
-CwidgetDataHighLowColor = '#709090';
-
 Cunits = {"temperature":"°F", "humidity":"%rh", "barometric":"kPa", "uv":"uvi", "airquality":"ppb"};
 CplotVertValsMinPerPixel = {"temperature":0.5, "humidity":0.7, "barometric":10, "uv":0.25, "airquality":2};
 

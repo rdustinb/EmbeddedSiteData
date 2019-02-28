@@ -88,6 +88,12 @@ function drawLocationBox(_xOffset,_yOffset,_width,_height){
 
 function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight,_type){
   selectColors(_type);
+  drawCurrentCurve(_ctx,_Sensor,_widgetWidth,_type);
+}
+
+/*
+function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight,_type){
+  selectColors(_type);
 
   // Draw the Samples Graph
   drawSamplesGraphBox(_ctx,_widgetWidth,_widgetHeight);
@@ -96,6 +102,47 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight,_type){
 
   // Draw the Current Data Section
   drawCurrentData(_ctx,_Sensor,_widgetWidth,_type);
+}
+*/
+
+function drawCurrentCurve(_ctx,_Sensor,_widgetWidth,_type){
+  var _currentVal  = _Sensor[_Sensor.length-1];
+  var _position = 70;
+  var _width = 40;
+  var _thickness = 3;
+
+  // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
+  if(_type == "temperature"){
+    var _endPointAsAngle = Math.PI-((_currentVal-66)/(80-66))*Math.PI;
+  }else if(_type == "humidity"){
+    var _endPointAsAngle = Math.PI-((_currentVal-31)/(48-31))*Math.PI;
+  }
+
+  // Background Arch
+  _ctx.fillStyle = CwidgetCurrentBgColor;
+  _ctx.beginPath();
+  _ctx.arc(_position, _position, _width, 0, Math.PI, true);
+  _ctx.arc(_position, _position, _width-2*3, Math.PI, 0, false);
+  //_ctx.lineTo(_position+_width, _position);
+  _ctx.closePath();
+  //_ctx.arc(46, 80, 6, Math.PI, 0, true);
+  //_ctx.stroke();
+  _ctx.fill();
+
+  // Current Value Arch
+  _ctx.fillStyle = '#990099';
+  _ctx.beginPath();
+  _ctx.arc(_position, _position, _width, -_endPointAsAngle, Math.PI, true);
+  _ctx.arc(_position, _position, _width-2*_thickness, Math.PI, -_endPointAsAngle, false);
+  _ctx.closePath();
+  _ctx.fill();
+  // where is the rounded end?
+  _ctx.beginPath();
+  var __x = Math.cos(_endPointAsAngle)*(_width-_thickness) + _position;
+  var __y = _position - Math.sin(_endPointAsAngle)*(_width-_thickness);
+  _ctx.arc(__x, __y, _thickness, 0, 2*Math.PI);
+  _ctx.closePath();
+  _ctx.fill();
 }
 
 function drawCurrentData(_ctx,_Sensor,_widgetWidth,_type){
