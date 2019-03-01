@@ -1,9 +1,18 @@
 CsampleSize         = 120; // 10 hours of samples
 CxOffset            = 5;
 CyOffset            = 40;
+CwidgetWidth        = 450;
+CwidgetHeight       = 80;
 CwidgetXGapMult     = 0.1;
+CwidgetWidthSmall   = CwidgetWidth*2/3;
+CwidgetHeightSmall  = CwidgetHeight*3/4;
 CwidgetPlotYMaxMult = 0.70;
 
+ClabelFont = "34px Arial";
+CcurrentFont = "60px Courier";
+CcurrentUnitFont = "18px Courier";
+
+Cunits = {"temperature":"°F", "humidity":"%rh", "barometric":"kPa", "uv":"uvi", "airquality":"ppb"};
 CplotVertValsMinPerPixel = {"temperature":0.5, "humidity":0.7, "barometric":10, "uv":0.25, "airquality":2};
 
 // Raises or Drops in temperature, humidity or, especially pressure indicate certain weather conditions. According to

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sensor Control Panel</title>
+    <link  rel="shortcut icon" href="file:///Users/sudood/Sites/EmbeddedSiteData/favicon.ico"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: rgb(240,240,240);
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .box50 {
+        height: 120px;
+        width: 100%;
+      }
+
+      .box33 {
+        height: 120px;
+        width: 100%;
+      }
+
+      .header {
+        height: 30px;
+        width: 100%;
+        margin: 5px;
+      }
+
+      @media screen and (min-width: 550px){
+        .box50 {
+          height: 120px;
+          width: 50%;
+        }
+        .box33 {
+          height: 120px;
+          width: 33.3333%;
+        }
+      }
+
+      @media screen and (min-width: 1024px){
+        .container {
+          width: 1024px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+    </style>
+    <script src="constants2.js"></script>
+    <script src="data.js"></script>
+    <script src="graph2.js"></script>
+  </head>
+  <body>
+    <!-- The actual page elements -->
+    <div class="container">
+      <div class="header" id="0.label">
+        <canvas id="0.label.canvas"></canvas>
+      </div>
+      <div class="box50" id="0.temperature">
+        <canvas id="0.temperature.canvas"></canvas>
+      </div>
+      <div class="box50" id="0.humidity">
+        <canvas id="0.humidity.canvas"></canvas>
+      </div>
+      <div class="header" id="1.label">
+        <canvas id="1.label.canvas"></canvas>
+      </div>
+      <div class="box50" id="1.temperature">
+        <canvas id="1.temperature.canvas"></canvas>
+      </div>
+      <div class="box50" id="1.humidity">
+        <canvas id="1.humidity.canvas"></canvas>
+      </div>
+      <div class="header" id="2.label">
+        <canvas id="2.label.canvas"></canvas>
+      </div>
+      <div class="box50" id="2.temperature">
+        <canvas id="2.temperature.canvas"></canvas>
+      </div>
+      <div class="box50" id="2.humidity">
+        <canvas id="2.humidity.canvas"></canvas>
+      </div>
+    </div>
+    <hr>
+    <!-- The drawing script stuff for each element -->
+    <script>
+      function redrawHeader(divId, canvasId, dictKey, dataElement){
+        var canvas = document.getElementById(canvasId);
+        var ctx = canvas.getContext("2d");
+        canvas.width  = document.getElementById(divId).offsetWidth;
+        canvas.height = document.getElementById(divId).offsetHeight;
+        // Need to specify the font size before we calculate the width of the
+        // text to be printed for centering otherwise the default font size
+        // will be used and will be the incorrect width
+        ctx.font = "34px Arial";
+        // This calculates the width of the text about to be printed to the
+        // canvas and then determines the necessary offset to start the text
+        // so that it is centered in the window
+        var widthOfTitle = ctx.measureText(__systemData[dataElement][dictKey]).width
+        var xOffset = (canvas.width-widthOfTitle-10)/2;
+        //ctx.fillStyle = CwidgetCurrentColor;
+        ctx.fillText(__systemData[dataElement][dictKey], 5+xOffset, canvas.height-2);
+      };
+      function redrawCanvas(divId, canvasId, dictKey, dataElement){
+        // Generic sensor drawing function that requires the following:
+        //  divId     - the ID of the div tag that this canvas being redrawn is within
+        //  canvasId  - the ID of this canvas being redrawn
+        // The canvasId and the sensor argument for the type must be the same otherwise things will be weird
+        var canvas = document.getElementById(canvasId);
+        var ctx = canvas.getContext("2d");
+        canvas.width  = document.getElementById(divId).offsetWidth;
+        canvas.height = document.getElementById(divId).offsetHeight;
+        drawSensorWidget(
+          ctx,
+          __systemData[dataElement][dictKey],
+          canvas.width-2*CxOffset,
+          canvas.height-CyOffset,
+          dictKey
+        );
+      };
+      function redrawAll(){
+        redrawHeader("0.label"       ,"0.label.canvas"       ,"label"       ,0);
+        redrawCanvas("0.temperature" ,"0.temperature.canvas" ,"temperature" ,0);
+        redrawCanvas("0.humidity"    ,"0.humidity.canvas"    ,"humidity"    ,0);
+        redrawHeader("1.label"       ,"1.label.canvas"       ,"label"       ,1);
+        redrawCanvas("1.temperature" ,"1.temperature.canvas" ,"temperature" ,1);
+        redrawCanvas("1.humidity"    ,"1.humidity.canvas"    ,"humidity"    ,1);
+        redrawHeader("2.label"       ,"2.label.canvas"       ,"label"       ,2);
+        redrawCanvas("2.temperature" ,"2.temperature.canvas" ,"temperature" ,2);
+        redrawCanvas("2.humidity"    ,"2.humidity.canvas"    ,"humidity"    ,2);
+      };
+      function delayRedraw(){
+        clearTimeout(decDelay); // Start the timeout over again if there is another resize event
+        decDelay = setTimeout(redrawAll, 100); // Delay for 30ms before calling this function
+      };
+
+      // Test function only, not used when sensors are actually being polled
+      genTestData();
+
+      // This is the initial redraw command for the entire page, called once when the page first
+      // loads on the client machine.
+      redrawAll();
+
+      // Everything in this script element is executed and ellaborated sequentially but the 
+      // following registers the delayRedraw function into the event of the window changing
+      // size, this is an asynchronous call which is why there needs to be a delay function
+      // to not have the redraw as fast as the processor and OS on the client machine
+      // possibly can.
+      var decDelay;
+      window.addEventListener("resize", delayRedraw);
+    </script>
+  </body>
+</html>

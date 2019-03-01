@@ -9,7 +9,7 @@
       html, body {
         margin: 0;
         padding: 0;
-        background-color: rgb(240,240,240);
+        background-color: rgb(40,40,40);
       }
 
       .container {
@@ -18,29 +18,27 @@
       }
 
       .box50 {
-        height: 120px;
         width: 100%;
+        height: 0;
+        padding-bottom: 50%;
       }
 
       .box33 {
-        height: 120px;
         width: 100%;
-      }
-
-      .header {
-        height: 30px;
-        width: 100%;
-        margin: 5px;
+        height: 0;
+        padding-bottom: 50%;
       }
 
       @media screen and (min-width: 550px){
         .box50 {
-          height: 120px;
           width: 50%;
+          height: 0;
+          padding-bottom: 25%;
         }
         .box33 {
-          height: 120px;
           width: 33.3333%;
+          height: 0;
+          padding-bottom: 16.6667%;
         }
       }
 
@@ -54,60 +52,25 @@
     </style>
     <script src="constants.js"></script>
     <script src="data.js"></script>
-    <script src="graph2.js"></script>
+    <script src="graph.js"></script>
   </head>
   <body>
     <!-- The actual page elements -->
     <div class="container">
-      <div class="header" id="0.label">
-        <canvas id="0.label.canvas"></canvas>
+      <div class="box50" id="0.sensor">
+        <canvas id="0.sensor.canvas"></canvas>
       </div>
-      <div class="box50" id="0.temperature">
-        <canvas id="0.temperature.canvas"></canvas>
+      <div class="box50" id="1.sensor">
+        <canvas id="1.sensor.canvas"></canvas>
       </div>
-      <div class="box50" id="0.humidity">
-        <canvas id="0.humidity.canvas"></canvas>
-      </div>
-      <div class="header" id="1.label">
-        <canvas id="1.label.canvas"></canvas>
-      </div>
-      <div class="box50" id="1.temperature">
-        <canvas id="1.temperature.canvas"></canvas>
-      </div>
-      <div class="box50" id="1.humidity">
-        <canvas id="1.humidity.canvas"></canvas>
-      </div>
-      <div class="header" id="2.label">
-        <canvas id="2.label.canvas"></canvas>
-      </div>
-      <div class="box50" id="2.temperature">
-        <canvas id="2.temperature.canvas"></canvas>
-      </div>
-      <div class="box50" id="2.humidity">
-        <canvas id="2.humidity.canvas"></canvas>
+      <div class="box50" id="2.sensor">
+        <canvas id="2.sensor.canvas"></canvas>
       </div>
     </div>
     <hr>
     <!-- The drawing script stuff for each element -->
     <script>
-      function redrawHeader(divId, canvasId, dictKey, dataElement){
-        var canvas = document.getElementById(canvasId);
-        var ctx = canvas.getContext("2d");
-        canvas.width  = document.getElementById(divId).offsetWidth;
-        canvas.height = document.getElementById(divId).offsetHeight;
-        // Need to specify the font size before we calculate the width of the
-        // text to be printed for centering otherwise the default font size
-        // will be used and will be the incorrect width
-        ctx.font = ClabelFont;
-        // This calculates the width of the text about to be printed to the
-        // canvas and then determines the necessary offset to start the text
-        // so that it is centered in the window
-        var widthOfTitle = ctx.measureText(__systemData[dataElement][dictKey]).width
-        var xOffset = (canvas.width-widthOfTitle-10)/2;
-        //ctx.fillStyle = CwidgetCurrentColor;
-        ctx.fillText(__systemData[dataElement][dictKey], 5+xOffset, canvas.height-2);
-      };
-      function redrawCanvas(divId, canvasId, dictKey, dataElement){
+      function redrawCanvas(divId, canvasId, dataElement){
         // Generic sensor drawing function that requires the following:
         //  divId     - the ID of the div tag that this canvas being redrawn is within
         //  canvasId  - the ID of this canvas being redrawn
@@ -118,22 +81,15 @@
         canvas.height = document.getElementById(divId).offsetHeight;
         drawSensorWidget(
           ctx,
-          __systemData[dataElement][dictKey],
-          canvas.width-2*CxOffset,
-          canvas.height-CyOffset,
-          dictKey
+          __systemData[dataElement],
+          canvas.width,
+          canvas.height
         );
       };
       function redrawAll(){
-        redrawHeader("0.label"       ,"0.label.canvas"       ,"label"       ,0);
-        redrawCanvas("0.temperature" ,"0.temperature.canvas" ,"temperature" ,0);
-        redrawCanvas("0.humidity"    ,"0.humidity.canvas"    ,"humidity"    ,0);
-        redrawHeader("1.label"       ,"1.label.canvas"       ,"label"       ,1);
-        redrawCanvas("1.temperature" ,"1.temperature.canvas" ,"temperature" ,1);
-        redrawCanvas("1.humidity"    ,"1.humidity.canvas"    ,"humidity"    ,1);
-        redrawHeader("2.label"       ,"2.label.canvas"       ,"label"       ,2);
-        redrawCanvas("2.temperature" ,"2.temperature.canvas" ,"temperature" ,2);
-        redrawCanvas("2.humidity"    ,"2.humidity.canvas"    ,"humidity"    ,2);
+        redrawCanvas("0.sensor" ,"0.sensor.canvas" ,0);
+        redrawCanvas("1.sensor" ,"1.sensor.canvas" ,1);
+        redrawCanvas("2.sensor" ,"2.sensor.canvas" ,2);
       };
       function delayRedraw(){
         clearTimeout(decDelay); // Start the timeout over again if there is another resize event
