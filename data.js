@@ -20,5 +20,10 @@ __systemData = [
     "temperature" : [],
     "humidity"    : [],
   },
+  {
+    "label" : "Living Room",
+    "temperature" : [],
+    "humidity"    : [],
+  },
 ];
 

@@ -52,11 +52,11 @@ function genTestData(){
     for(var Lsensor in __systemData[Lroom]){
       if(Lsensor == "temperature"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
-          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(78,68);
+          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(76,68);
         }
       }else if(Lsensor == "humidity"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
-          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(46,33);
+          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(42,35);
         }
       }else if(Lsensor == "barometric"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
@@ -77,24 +77,26 @@ function genTestData(){
 
 // Drawing Functions
 function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
-  drawCurrentCurve(_ctx,_Sensor["temperature"],_widgetHeight,_widgetWidth,_widgetHeight,80,66);
-  drawCurrentData( _ctx,_Sensor["temperature"],_widgetHeight,_widgetWidth,_widgetHeight,"°");
-  drawCurrentCurve(_ctx,_Sensor[   "humidity"],_widgetHeight,_widgetWidth,_widgetHeight,48,31);
-  drawCurrentData( _ctx,_Sensor[   "humidity"],_widgetHeight,_widgetWidth,_widgetHeight,"%");
+  drawCurrentCurve(_ctx,_Sensor["temperature"],_widgetHeight*0.90,_widgetWidth,_widgetHeight,80,66);
+  drawCurrentCurve(_ctx,_Sensor[   "humidity"],_widgetHeight*0.78,_widgetWidth,_widgetHeight,48,31);
+  drawSensorTrend( _ctx,_Sensor["temperature"],_widgetHeight*0.93,_widgetWidth,_widgetHeight,80,66);
+  drawSensorTrend( _ctx,_Sensor[   "humidity"],_widgetHeight*0.81,_widgetWidth,_widgetHeight,48,31);
+  drawCurrentData( _ctx,_Sensor["temperature"],_widgetWidth,_widgetWidth*0.20,_widgetHeight*0.99,"°");
+  drawCurrentData( _ctx,_Sensor[   "humidity"],_widgetWidth,_widgetWidth*0.68,_widgetHeight*0.99,"%");
 }
 
 function drawCurrentCurve(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
   var _currentVal  = _Sensor[_Sensor.length-1];
-  var _thickness = 3;
+  var _thickness = _width/125;
 
   // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
   var _endPointAsAngle = Math.PI-((_currentVal-_lo)/(_hi-_lo))*Math.PI;
 
   // Background Arch
-  _ctx.fillStyle = '#000000';
+  _ctx.fillStyle = '#080808';
   _ctx.beginPath();
   _ctx.arc(_width/2, _height, _box, 0, Math.PI, true);
-  _ctx.arc(_width/2, _height, _box-2*3, Math.PI, 0, false);
+  _ctx.arc(_width/2, _height, _box-2*_thickness, Math.PI, 0, false);
   _ctx.closePath();
   _ctx.fill();
 
@@ -114,10 +116,52 @@ function drawCurrentCurve(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
   _ctx.fill();
 }
 
-function drawCurrentData(_ctx,_Sensor,_widgetWidth,_widgetHeight,_unit){
+function drawSensorTrend(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
+  // Get min and max for the sensor
+  var _min = 1000;
+  var _max = -1000;
+  for(var i=_Sensor.length-2; i>_Sensor.length-52; i--){
+    if(_Sensor[i] > _max){
+      _max = _Sensor[i];
+    }
+    if(_Sensor[i] < _min){
+      _min = _Sensor[i];
+    }
+  }
+
+  var _thickness = _width/125;
+
+  // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
+  var _endPointAsAngle   = Math.PI-((_max-_lo)/(_hi-_lo))*Math.PI;
+  var _startPointAsAngle = Math.PI-((_min-_lo)/(_hi-_lo))*Math.PI;
+
+  // Current Value Arch
+  _ctx.fillStyle = '#666666';
+  _ctx.beginPath();
+  _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, -_startPointAsAngle, true);
+  _ctx.arc(_width/2, _height, _box-2*_thickness, -_startPointAsAngle, -_endPointAsAngle, false);
+  _ctx.closePath();
+  _ctx.fill();
+  // where is the rounded end?
+  _ctx.beginPath();
+  var __x = Math.cos(_endPointAsAngle)*(_box-_thickness) + _width/2;
+  var __y = _height - Math.sin(_endPointAsAngle)*(_box-_thickness);
+  _ctx.arc(__x, __y, _thickness, 0, 2*Math.PI);
+  _ctx.closePath();
+  _ctx.fill();
+  // where is the rounded end?
+  _ctx.beginPath();
+  var __x = Math.cos(_startPointAsAngle)*(_box-_thickness) + _width/2;
+  var __y = _height - Math.sin(_startPointAsAngle)*(_box-_thickness);
+  _ctx.arc(__x, __y, _thickness, 0, 2*Math.PI);
+  _ctx.closePath();
+  _ctx.fill();
+}
+
+function drawCurrentData(_ctx,_Sensor,_width,_x,_y,_unit){
   // Display the Current Value
-  _ctx.font = "24px Courier";
-  //_ctx.fillStyle = CwidgetCurrentColor;
-  _ctx.fillText(_Sensor[_Sensor.length-1]+_unit, _widgetWidth*0.1, 25);
+  _ctx.font = (_width/14)+"px Courier";
+  _ctx.fillStyle = '#999999';
+  _ctx.fillText(_Sensor[_Sensor.length-1]+_unit, _x, _y);
 }
 

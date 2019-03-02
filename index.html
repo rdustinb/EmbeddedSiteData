@@ -9,7 +9,7 @@
       html, body {
         margin: 0;
         padding: 0;
-        background-color: rgb(40,40,40);
+        background-color: rgb(26,22,20);
       }
 
       .container {
@@ -56,7 +56,7 @@
   </head>
   <body>
     <!-- The actual page elements -->
-    <div class="container">
+    <div class="container", id="0.container">
       <div class="box50" id="0.sensor">
         <canvas id="0.sensor.canvas"></canvas>
       </div>
@@ -65,6 +65,9 @@
       </div>
       <div class="box50" id="2.sensor">
         <canvas id="2.sensor.canvas"></canvas>
+      </div>
+      <div class="box50" id="3.sensor">
+        <canvas id="3.sensor.canvas"></canvas>
       </div>
     </div>
     <hr>
@@ -90,6 +93,7 @@
         redrawCanvas("0.sensor" ,"0.sensor.canvas" ,0);
         redrawCanvas("1.sensor" ,"1.sensor.canvas" ,1);
         redrawCanvas("2.sensor" ,"2.sensor.canvas" ,2);
+        redrawCanvas("3.sensor" ,"3.sensor.canvas" ,3);
       };
       function delayRedraw(){
         clearTimeout(decDelay); // Start the timeout over again if there is another resize event
