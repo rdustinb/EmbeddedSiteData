@@ -24,6 +24,9 @@ __systemData = [
     "label" : "Living Room",
     "temperature" : [],
     "humidity"    : [],
+    "barometric"  : [],
+    "uv"          : [],
+    "airquality"  : [],
   },
 ];
 

@@ -27,11 +27,11 @@ function genTestData(){
         }
       }else if(Lsensor == "barometric"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
-          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(1100,950);
+          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(1060,1000);
         }
       }else if(Lsensor == "uv"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
-          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(13,1);
+          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(9,4);
         }
       }else if(Lsensor == "airquality"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
@@ -44,14 +44,90 @@ function genTestData(){
 
 // Drawing Functions
 function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
-  drawCurrentCurve(_ctx,_Sensor["temperature"],_widgetHeight*0.90,      _widgetWidth,     _widgetHeight,80,66);
-  drawCurrentCurve(_ctx,_Sensor[   "humidity"],_widgetHeight*0.80,      _widgetWidth,     _widgetHeight,48,31);
-  drawSensorTrend( _ctx,_Sensor["temperature"],_widgetHeight*0.93,      _widgetWidth,     _widgetHeight,80,66);
-  drawSensorTrend( _ctx,_Sensor[   "humidity"],_widgetHeight*0.83,      _widgetWidth,     _widgetHeight,48,31);
-  drawCurrentData( _ctx,_Sensor["temperature"],      _widgetWidth, _widgetWidth*0.20,_widgetHeight*0.99,"°");
-  drawCurrentData( _ctx,_Sensor[   "humidity"],      _widgetWidth, _widgetWidth*0.68,_widgetHeight*0.99,"%");
-  drawTrendArrow(  _ctx,_Sensor["temperature"],      _widgetWidth, _widgetWidth*0.18,_widgetHeight*0.95,-3,-1,1,3);
-  drawTrendArrow(  _ctx,_Sensor[   "humidity"],      _widgetWidth, _widgetWidth*0.66,_widgetHeight*0.95,-3,-1,1,3);
+  var hiLow = {
+    "temperature": {"hi": 80,   "lo": 66},
+    "humidity":    {"hi": 48,   "lo": 31},
+    "barometric":  {"hi": 1100, "lo": 950},
+    "uv":          {"hi": 13,   "lo": 0},
+    "airquality":  {"hi": 500,  "lo": 0}
+  };
+  var trendLimits = {
+    "temperature": {"downquick": -3,   "downslow": -1,   "upslow": 1,   "upquick": 3},
+    "humidity":    {"downquick": -3,   "downslow": -1,   "upslow": 1,   "upquick": 3},
+    "barometric":  {"downquick": -3.6, "downslow": -1.5, "upslow": 1.5, "upquick": 3.6},
+    "uv":          {"downquick": -2,   "downslow": -1,   "upslow": 1,   "upquick": 2},
+    "airquality":  {"downquick": -5,   "downslow": -2,   "upslow": 2,   "upquick": 5}
+  };
+  var positionNumbers = {
+    "temperature": [0.90, 0.92, 0.30, 0.99, 0.28, 0.95],
+    "humidity":    [0.82, 0.84, 0.58, 0.99, 0.56, 0.95],
+    "barometric":  [0.74, 0.76, 0.20, 0.79, 0.18, 0.75],
+    "uv":          [0.66, 0.68, 0.68, 0.79, 0.66, 0.75],
+    "airquality":  [0.58, 0.60, 0.45, 0.59, 0.43, 0.55]
+  };
+  var currentCharacter = {
+    "temperature": "°",
+    "humidity":    "%",
+    "barometric":  "mbar",
+    "uv":          "idx",
+    "airquality":  "ppm"
+  };
+  var enableDraw = {
+    "temperature": [1, 1, 1, 1],
+    "humidity":    [1, 1, 1, 1],
+    "barometric":  [1, 1, 0, 0],
+    "uv":          [1, 1, 0, 0],
+    "airquality":  [1, 1, 0, 0]
+  };
+
+  for(var dictKey in _Sensor){
+    if(dictKey == "label") continue;
+    // Draw the curve for the current value, scaled from left to right according to the limits in hiLow
+    if(enableDraw[dictKey][0] == 1)
+      drawCurrentCurve(
+        _ctx,
+        _Sensor[dictKey],
+        _widgetHeight*positionNumbers[dictKey][0],
+        _widgetWidth,
+        _widgetHeight,
+        hiLow[dictKey]["hi"],
+        hiLow[dictKey]["lo"]
+      );
+    // Draw the trend of this sensor over the last 50 stored values
+    if(enableDraw[dictKey][1] == 1)
+      drawSensorTrend(
+        _ctx,
+        _Sensor[dictKey],
+        _widgetHeight*positionNumbers[dictKey][1],
+        _widgetWidth,
+        _widgetHeight,
+        hiLow[dictKey]["hi"],
+        hiLow[dictKey]["lo"]
+      );
+    // Print the current value as a number with a special character
+    if(enableDraw[dictKey][2] == 1)
+      drawCurrentData(
+        _ctx,
+        _Sensor[dictKey],
+        _widgetWidth,
+        _widgetWidth*positionNumbers[dictKey][2],
+        _widgetHeight*positionNumbers[dictKey][3],
+        currentCharacter[dictKey]
+      );
+    // Draw the trend arrow for the current sensor and historic data stored
+    if(enableDraw[dictKey][3] == 1)
+      drawTrendArrow(
+        _ctx,
+        _Sensor[dictKey],
+        _widgetWidth,
+        _widgetWidth*positionNumbers[dictKey][4],
+        _widgetHeight*positionNumbers[dictKey][5],
+        trendLimits[dictKey]["downquick"],
+        trendLimits[dictKey]["downslow"],
+        trendLimits[dictKey]["upslow"],
+        trendLimits[dictKey]["upquick"]
+      );
+  }
 }
 
 function drawCurrentCurve(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
@@ -98,7 +174,7 @@ function drawSensorTrend(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
     }
   }
 
-  var _thickness = _width/125;
+  var _thickness = _width/250;
 
   // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
   var _endPointAsAngle   = Math.PI-((_max-_lo)/(_hi-_lo))*Math.PI;
