@@ -19,7 +19,7 @@ function genTestData(){
     for(var Lsensor in __systemData[Lroom]){
       if(Lsensor == "temperature"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
-          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(76,68);
+          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(72,68);
         }
       }else if(Lsensor == "humidity"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
@@ -35,7 +35,7 @@ function genTestData(){
         }
       }else if(Lsensor == "airquality"){
         for(var CsampleDepth=0; CsampleDepth<CsampleSize; CsampleDepth++){
-          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(256,236);
+          __systemData[Lroom][Lsensor][CsampleDepth] = genRandomSensor(75,25);
         }
       }
     }
@@ -44,9 +44,16 @@ function genTestData(){
 
 // Drawing Functions
 function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
+  var colors = {
+    "temperature": '#bb4422',
+    "humidity":    '#2244bb',
+    "barometric":  '#ccccff',
+    "uv":          '#bbbb44',
+    "airquality":  '#bb44bb'
+  };
   var hiLow = {
-    "temperature": {"hi": 80,   "lo": 66},
-    "humidity":    {"hi": 48,   "lo": 31},
+    "temperature": {"hi": 80,   "lo": 50},
+    "humidity":    {"hi": 70,   "lo": 5},
     "barometric":  {"hi": 1100, "lo": 950},
     "uv":          {"hi": 13,   "lo": 0},
     "airquality":  {"hi": 500,  "lo": 0}
@@ -87,6 +94,7 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
       drawCurrentCurve(
         _ctx,
         _Sensor[dictKey],
+        colors[dictKey],
         _widgetHeight*positionNumbers[dictKey][0],
         _widgetWidth,
         _widgetHeight,
@@ -130,7 +138,7 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
   }
 }
 
-function drawCurrentCurve(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
+function drawCurrentCurve(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
   var _currentVal  = _Sensor[_Sensor.length-1];
   var _thickness = _width/125;
 
@@ -146,7 +154,7 @@ function drawCurrentCurve(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
   _ctx.fill();
 
   // Current Value Arch
-  _ctx.fillStyle = '#bb4422';
+  _ctx.fillStyle = _color;
   _ctx.beginPath();
   _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, Math.PI, true);
   _ctx.arc(_width/2, _height, _box-2*_thickness, Math.PI, -_endPointAsAngle, false);
