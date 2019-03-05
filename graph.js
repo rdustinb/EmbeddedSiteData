@@ -47,8 +47,15 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
   var colors = {
     "temperature": '#bb4422',
     "humidity":    '#2244bb',
+    "barometric":  '#8888dd',
+    "uv":          '#999999',
+    "airquality":  '#999999'
+  };
+  var trendColors = {
+    "temperature": '#dd8866',
+    "humidity":    '#6688dd',
     "barometric":  '#ccccff',
-    "uv":          '#bbbb44',
+    "uv":          '#888833',
     "airquality":  '#bb44bb'
   };
   var hiLow = {
@@ -58,6 +65,13 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
     "uv":          {"hi": 13,   "lo": 0},
     "airquality":  {"hi": 500,  "lo": 0}
   };
+  var scaleCount = {
+    "temperature": 1,
+    "humidity":    1,
+    "barometric":  1,
+    "uv":          5, // 1-2 ; 3-5 ; 6-7 ; 8-10 ; 11+
+    "airquality":  6, // 0-50 ; 51-100 ; 101-150 ; 151-200 ; 201-300 ; 301-500
+  };
   var trendLimits = {
     "temperature": {"downquick": -3,   "downslow": -1,   "upslow": 1,   "upquick": 3},
     "humidity":    {"downquick": -3,   "downslow": -1,   "upslow": 1,   "upquick": 3},
@@ -66,11 +80,11 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
     "airquality":  {"downquick": -5,   "downslow": -2,   "upslow": 2,   "upquick": 5}
   };
   var positionNumbers = {
-    "temperature": [0.90, 0.92, 0.30, 0.99, 0.28, 0.95],
-    "humidity":    [0.82, 0.84, 0.58, 0.99, 0.56, 0.95],
-    "barometric":  [0.74, 0.76, 0.20, 0.79, 0.18, 0.75],
-    "uv":          [0.66, 0.68, 0.68, 0.79, 0.66, 0.75],
-    "airquality":  [0.58, 0.60, 0.45, 0.59, 0.43, 0.55]
+    "temperature": [0.90, 0.91, 0.30, 0.99, 0.28, 0.95],
+    "humidity":    [0.82, 0.83, 0.58, 0.99, 0.56, 0.95],
+    "barometric":  [0.74, 0.75, 0.20, 0.79, 0.18, 0.75],
+    "uv":          [0.66, 0.67, 0.68, 0.79, 0.66, 0.75],
+    "airquality":  [0.58, 0.59, 0.45, 0.59, 0.43, 0.55]
   };
   var currentCharacter = {
     "temperature": "°",
@@ -80,15 +94,17 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
     "airquality":  "ppm"
   };
   var enableDraw = {
-    "temperature": [1, 1, 1, 1],
-    "humidity":    [1, 1, 1, 1],
-    "barometric":  [1, 1, 0, 0],
-    "uv":          [1, 1, 0, 0],
-    "airquality":  [1, 1, 0, 0]
+    // Current value curve, sample trend curve, scale curve, current value number, trend arrow
+    "temperature": [1, 1, 0, 1, 1],
+    "humidity":    [1, 1, 0, 1, 1],
+    "barometric":  [1, 0, 0, 0, 0],
+    "uv":          [1, 0, 1, 0, 0],
+    "airquality":  [1, 0, 1, 0, 0]
   };
 
   for(var dictKey in _Sensor){
-    if(dictKey == "label") continue;
+    if(dictKey == "label")
+      continue;
     // Draw the curve for the current value, scaled from left to right according to the limits in hiLow
     if(enableDraw[dictKey][0] == 1)
       drawCurrentCurve(
@@ -106,14 +122,24 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
       drawSensorTrend(
         _ctx,
         _Sensor[dictKey],
+        trendColors[dictKey],
         _widgetHeight*positionNumbers[dictKey][1],
         _widgetWidth,
         _widgetHeight,
         hiLow[dictKey]["hi"],
         hiLow[dictKey]["lo"]
       );
-    // Print the current value as a number with a special character
+    // Draw the scale curve
     if(enableDraw[dictKey][2] == 1)
+      drawScaleCurve(
+        _ctx,
+        _widgetHeight*positionNumbers[dictKey][1],
+        _widgetWidth,
+        _widgetHeight,
+        dictKey
+      );
+    // Print the current value as a number with a special character
+    if(enableDraw[dictKey][3] == 1)
       drawCurrentData(
         _ctx,
         _Sensor[dictKey],
@@ -123,7 +149,7 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         currentCharacter[dictKey]
       );
     // Draw the trend arrow for the current sensor and historic data stored
-    if(enableDraw[dictKey][3] == 1)
+    if(enableDraw[dictKey][4] == 1)
       drawTrendArrow(
         _ctx,
         _Sensor[dictKey],
@@ -169,7 +195,7 @@ function drawCurrentCurve(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
   _ctx.fill();
 }
 
-function drawSensorTrend(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
+function drawSensorTrend(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
   // Get min and max for the sensor
   var _min = 1000;
   var _max = -1000;
@@ -182,14 +208,14 @@ function drawSensorTrend(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
     }
   }
 
-  var _thickness = _width/250;
+  var _thickness = _width/300;
 
   // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
   var _endPointAsAngle   = Math.PI-((_max-_lo)/(_hi-_lo))*Math.PI;
   var _startPointAsAngle = Math.PI-((_min-_lo)/(_hi-_lo))*Math.PI;
 
   // Current Value Arch
-  _ctx.fillStyle = '#666666';
+  _ctx.fillStyle = _color;
   _ctx.beginPath();
   _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, -_startPointAsAngle, true);
   _ctx.arc(_width/2, _height, _box-2*_thickness, -_startPointAsAngle, -_endPointAsAngle, false);
@@ -209,6 +235,35 @@ function drawSensorTrend(_ctx,_Sensor,_box,_width,_height,_hi,_lo){
   _ctx.arc(__x, __y, _thickness, 0, 2*Math.PI);
   _ctx.closePath();
   _ctx.fill();
+}
+
+function drawScaleCurve(_ctx,_box,_width,_height,_type){
+  var _thickness = _width/300;
+  var _colors = ['#229922','#bbbb00','#bb6600','#bb0000','#900090','#800000'];
+
+  // Background Arch
+  if(_type == "uv"){
+    // Scaled to 13 levels as I believe that is what the sensor output is
+    var multiplier = [1,0.80,0.56,0.40,0.24,0];
+    for(var i=0; i<multiplier.length-1; i++){
+      _ctx.fillStyle = _colors[i];
+      _ctx.beginPath();
+      _ctx.arc(_width/2, _height, _box, -Math.PI*multiplier[i+1], -Math.PI*multiplier[i], true);
+      _ctx.arc(_width/2, _height, _box-2*_thickness, -Math.PI*multiplier[i], -Math.PI*multiplier[i+1], false);
+      _ctx.closePath();
+      _ctx.fill();
+    }
+  }else if(_type == "airquality"){
+    var multiplier = [1,0.90,0.80,0.70,0.60,0.40,0];
+    for(var i=0; i<multiplier.length-1; i++){
+      _ctx.fillStyle = _colors[i];
+      _ctx.beginPath();
+      _ctx.arc(_width/2, _height, _box, -Math.PI*multiplier[i+1], -Math.PI*multiplier[i], true);
+      _ctx.arc(_width/2, _height, _box-2*_thickness, -Math.PI*multiplier[i], -Math.PI*multiplier[i+1], false);
+      _ctx.closePath();
+      _ctx.fill();
+    }
+  }
 }
 
 function drawCurrentData(_ctx,_Sensor,_width,_x,_y,_unit){
