@@ -44,6 +44,14 @@ function genTestData(){
 
 // Drawing Functions
 function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
+  var maxMultiplier = 0.70;
+  var sensorLabels = {
+    "temperature": "Temperature",
+    "humidity":    "Humidity",
+    "barometric":  "Pressure",
+    "uv":          "UV Index",
+    "airquality":  "Air Quality"
+  };
   var colors = {
     "temperature": '#bb4422',
     "humidity":    '#2244bb',
@@ -85,11 +93,16 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
     "airquality":  {"downquick": -5,   "downslow": -2,   "upslow": 2,   "upquick": 5}
   };
   var positionNumbers = {
-    "temperature": [0.90, 0.91, 0.30, 0.99, 0.28, 0.95],
-    "humidity":    [0.82, 0.83, 0.58, 0.99, 0.56, 0.95],
-    "barometric":  [0.74, 0.75, 0.20, 0.79, 0.18, 0.75],
-    "uv":          [0.66, 0.67, 0.68, 0.79, 0.66, 0.75],
-    "airquality":  [0.58, 0.59, 0.45, 0.59, 0.43, 0.55]
+    "temperature": [0.85, 0.86, 0.31, 0.99, 0.29, 0.95],
+    "humidity":    [0.77, 0.78, 0.59, 0.99, 0.57, 0.95],
+    "barometric":  [0.69, 0.70, 0.21, 0.79, 0.19, 0.75],
+    "uv":          [0.61, 0.62, 0.69, 0.79, 0.67, 0.75],
+    "airquality":  [0.53, 0.54, 0.46, 0.59, 0.44, 0.55]
+    //"temperature": [0.85, 0.86, 0.34, 0.99, 0.32, 0.95],
+    //"humidity":    [0.75, 0.76, 0.56, 0.99, 0.54, 0.95],
+    //"barometric":  [0.65, 0.66, 0.24, 0.79, 0.22, 0.75],
+    //"uv":          [0.55, 0.56, 0.66, 0.79, 0.64, 0.75],
+    //"airquality":  [0.45, 0.46, 0.46, 0.59, 0.44, 0.55]
   };
   var currentCharacter = {
     "temperature": "°",
@@ -100,18 +113,27 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
   };
   var enableDraw = {
     // Current value curve, sample trend curve, scale curve, current value number, trend arrow
-    "temperature": [1, 0, 1, 0, 1, 1],
-    "humidity":    [1, 0, 1, 0, 1, 1],
-    "barometric":  [1, 0, 0, 0, 0, 0],
-    "uv":          [0, 1, 0, 1, 0, 0],
-    "airquality":  [0, 1, 0, 1, 0, 0]
+    "temperature": [1, 1, 0, 1, 0, 1, 1],
+    "humidity":    [1, 1, 0, 1, 0, 1, 1],
+    "barometric":  [1, 1, 0, 0, 0, 0, 0],
+    "uv":          [1, 0, 1, 0, 1, 0, 0],
+    "airquality":  [1, 0, 1, 0, 1, 0, 0]
   };
 
   for(var dictKey in _Sensor){
     if(dictKey == "label")
       continue;
-    // Draw the curve for the current value, scaled from left to right according to the limits in hiLow
     if(enableDraw[dictKey][0] == 1)
+      drawSensorLabel(
+        _ctx,
+        _widgetHeight*positionNumbers[dictKey][0],
+        _widgetWidth,
+        _widgetHeight,
+        sensorLabels[dictKey],
+        maxMultiplier
+      );
+    // Draw the curve for the current value, scaled from left to right according to the limits in hiLow
+    if(enableDraw[dictKey][1] == 1)
       drawCurrentCurve(
         _ctx,
         _Sensor[dictKey],
@@ -120,10 +142,11 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         _widgetWidth,
         _widgetHeight,
         hiLow[dictKey]["hi"],
-        hiLow[dictKey]["lo"]
+        hiLow[dictKey]["lo"],
+        maxMultiplier
       );
     // Draw the curve for the current value which is color according to the limits
-    if(enableDraw[dictKey][1] == 1)
+    if(enableDraw[dictKey][2] == 1)
       drawCurrentCurveColoredByLimits(
         _ctx,
         _Sensor[dictKey],
@@ -133,10 +156,11 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         hiLow[dictKey]["hi"],
         hiLow[dictKey]["lo"],
         multiplier[dictKey],
-        limitColors
+        limitColors,
+        maxMultiplier
       );
     // Draw the trend of this sensor over the last 50 stored values
-    if(enableDraw[dictKey][2] == 1)
+    if(enableDraw[dictKey][3] == 1)
       drawSensorTrend(
         _ctx,
         _Sensor[dictKey],
@@ -145,20 +169,22 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         _widgetWidth,
         _widgetHeight,
         hiLow[dictKey]["hi"],
-        hiLow[dictKey]["lo"]
+        hiLow[dictKey]["lo"],
+        maxMultiplier
       );
     // Draw the scale curve
-    if(enableDraw[dictKey][3] == 1)
+    if(enableDraw[dictKey][4] == 1)
       drawScaleCurve(
         _ctx,
         _widgetHeight*positionNumbers[dictKey][1],
         _widgetWidth,
         _widgetHeight,
         multiplier[dictKey],
-        limitColors
+        limitColors,
+        maxMultiplier
       );
     // Print the current value as a number with a special character
-    if(enableDraw[dictKey][4] == 1)
+    if(enableDraw[dictKey][5] == 1)
       drawCurrentData(
         _ctx,
         _Sensor[dictKey],
@@ -168,7 +194,7 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         currentCharacter[dictKey]
       );
     // Draw the trend arrow for the current sensor and historic data stored
-    if(enableDraw[dictKey][5] == 1)
+    if(enableDraw[dictKey][6] == 1)
       drawTrendArrow(
         _ctx,
         _Sensor[dictKey],
@@ -183,26 +209,61 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
   }
 }
 
-function drawCurrentCurve(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
+function drawSensorLabel(_ctx,_box,_width,_height,_label,_maxMultiplier){
+  var textAngle = (Math.PI-(Math.PI*_maxMultiplier))-(Math.PI/2);
+  // This is the location of the end of the curve of the sensor
+  var _x = (_width/2)-_box*Math.cos(Math.PI-(Math.PI*_maxMultiplier));
+  var _y = _height-Math.sin(Math.PI-(Math.PI*_maxMultiplier))*_box;
+  // Now create a right triangle of height and width based on the length
+  // of the string to be displayed and it also has to do with the angle
+  // of the curve we are labeling.
+  //                ....
+  //             ....
+  //             t .right angle between transverse plane of text and
+  //           x .   . curve
+  //         e   .     .
+  //       TX.....       . C Angle
+  //        |  ____________.X___________
+  //   C Angle - PI/2
+  // x = length = Text Length * cos(C Angle - PI/2)
+  // y = height = Text Length * sin(C Angle - PI/2)
+  var _translateX = (_label.length*_width/60) * Math.cos(textAngle);
+  var _translateY = (_label.length*_width/60) * Math.sin(textAngle);
+  // Now combine the original location and the translation due to the
+  // text length
+  var _x = _x - _translateX;
+  var _y = _y - _translateY;
+  // Display the Current Value
+  _ctx.font = (_width/40)+"px Courier";
+  _ctx.fillStyle = '#999999';
+  _ctx.translate(_x, _y);
+  _ctx.rotate(textAngle);
+  _ctx.fillText(_label, 0, 0);
+  _ctx.rotate(-textAngle);
+  _ctx.translate(-_x, -_y);
+}
+
+function drawCurrentCurve(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo,_maxMultiplier){
   var _currentVal  = _Sensor[_Sensor.length-1];
   var _thickness = _width/125;
+  var _maxScale = Math.PI*_maxMultiplier;
 
   // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
-  var _endPointAsAngle = Math.PI-((_currentVal-_lo)/(_hi-_lo))*Math.PI;
+  var _endPointAsAngle = _maxScale-((_currentVal-_lo)/(_hi-_lo))*_maxScale;
 
   // Background Arch
   _ctx.fillStyle = '#161412';
   _ctx.beginPath();
-  _ctx.arc(_width/2, _height, _box, 0, Math.PI, true);
-  _ctx.arc(_width/2, _height, _box-2*_thickness, Math.PI, 0, false);
+  _ctx.arc(_width/2, _height, _box, 0, -_maxScale, true);
+  _ctx.arc(_width/2, _height, _box-2*_thickness, -_maxScale, 0, false);
   _ctx.closePath();
   _ctx.fill();
 
   // Current Value Arch
   _ctx.fillStyle = _color;
   _ctx.beginPath();
-  _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, Math.PI, true);
-  _ctx.arc(_width/2, _height, _box-2*_thickness, Math.PI, -_endPointAsAngle, false);
+  _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, -_maxScale, true);
+  _ctx.arc(_width/2, _height, _box-2*_thickness, -_maxScale, -_endPointAsAngle, false);
   _ctx.closePath();
   _ctx.fill();
   // where is the rounded end?
@@ -214,31 +275,32 @@ function drawCurrentCurve(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
   _ctx.fill();
 }
 
-function drawCurrentCurveColoredByLimits(_ctx,_Sensor,_box,_width,_height,_hi,_lo,_multiplier,_limitColors){
+function drawCurrentCurveColoredByLimits(_ctx,_Sensor,_box,_width,_height,_hi,_lo,_multiplier,_limitColors,_maxMultiplier){
   var _currentVal  = _Sensor[_Sensor.length-1];
   var _thickness = _width/125;
+  var _maxScale = Math.PI*_maxMultiplier;
 
   // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
-  var _endPointAsAngle = Math.PI-((_currentVal-_lo)/(_hi-_lo))*Math.PI;
+  var _endPointAsAngle = _maxScale-((_currentVal-_lo)/(_hi-_lo))*_maxScale;
   var _color;
   for(var i=0; i<_multiplier.length-1; i++){
-    if(_multiplier[i]*Math.PI >= _endPointAsAngle) _color = _limitColors[i];
+    if(_multiplier[i]*_maxScale >= _endPointAsAngle) _color = _limitColors[i];
     else break;
   }
 
   // Background Arch
   _ctx.fillStyle = '#161412';
   _ctx.beginPath();
-  _ctx.arc(_width/2, _height, _box, 0, Math.PI, true);
-  _ctx.arc(_width/2, _height, _box-2*_thickness, Math.PI, 0, false);
+  _ctx.arc(_width/2, _height, _box, 0, -_maxScale, true);
+  _ctx.arc(_width/2, _height, _box-2*_thickness, -_maxScale, 0, false);
   _ctx.closePath();
   _ctx.fill();
 
   // Current Value Arch
   _ctx.fillStyle = _color;
   _ctx.beginPath();
-  _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, Math.PI, true);
-  _ctx.arc(_width/2, _height, _box-2*_thickness, Math.PI, -_endPointAsAngle, false);
+  _ctx.arc(_width/2, _height, _box, -_endPointAsAngle, -_maxScale, true);
+  _ctx.arc(_width/2, _height, _box-2*_thickness, -_maxScale, -_endPointAsAngle, false);
   _ctx.closePath();
   _ctx.fill();
   // where is the rounded end?
@@ -250,7 +312,7 @@ function drawCurrentCurveColoredByLimits(_ctx,_Sensor,_box,_width,_height,_hi,_l
   _ctx.fill();
 }
 
-function drawSensorTrend(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
+function drawSensorTrend(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo,_maxMultiplier){
   // Get min and max for the sensor
   var _min = 1000;
   var _max = -1000;
@@ -264,10 +326,11 @@ function drawSensorTrend(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
   }
 
   var _thickness = _width/300;
+  var _maxScale = Math.PI*_maxMultiplier;
 
   // Scaled to a range between 0 (highest) and PI (lowest), inverse proportion
-  var _endPointAsAngle   = Math.PI-((_max-_lo)/(_hi-_lo))*Math.PI;
-  var _startPointAsAngle = Math.PI-((_min-_lo)/(_hi-_lo))*Math.PI;
+  var _endPointAsAngle   = _maxScale-((_max-_lo)/(_hi-_lo))*_maxScale;
+  var _startPointAsAngle = _maxScale-((_min-_lo)/(_hi-_lo))*_maxScale;
 
   // Current Value Arch
   _ctx.fillStyle = _color;
@@ -292,15 +355,16 @@ function drawSensorTrend(_ctx,_Sensor,_color,_box,_width,_height,_hi,_lo){
   _ctx.fill();
 }
 
-function drawScaleCurve(_ctx,_box,_width,_height,_multiplier,_limitColors){
+function drawScaleCurve(_ctx,_box,_width,_height,_multiplier,_limitColors,_maxMultiplier){
   var _thickness = _width/300;
+  var _maxScale = Math.PI*_maxMultiplier;
 
   // Background Arch
   for(var i=0; i<_multiplier.length-1; i++){
     _ctx.fillStyle = _limitColors[i];
     _ctx.beginPath();
-    _ctx.arc(_width/2, _height, _box, -Math.PI*_multiplier[i+1], -Math.PI*_multiplier[i], true);
-    _ctx.arc(_width/2, _height, _box-2*_thickness, -Math.PI*_multiplier[i], -Math.PI*_multiplier[i+1], false);
+    _ctx.arc(_width/2, _height, _box, -_maxScale*_multiplier[i+1], -_maxScale*_multiplier[i], true);
+    _ctx.arc(_width/2, _height, _box-2*_thickness, -_maxScale*_multiplier[i], -_maxScale*_multiplier[i+1], false);
     _ctx.closePath();
     _ctx.fill();
   }
