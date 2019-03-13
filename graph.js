@@ -45,8 +45,8 @@ function genTestData(){
 // Drawing Functions
 function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
   var maxMultiplier = 0.70;
-  var curveThickDividerLarge = 80;
-  var curveThickDividerSmall = 300;
+  var curveThickDividerLarge = 55;
+  var curveThickDividerSmall = 175;
   var sensorLabels = {
     "temperature": "Temperature",
     "humidity":    "Humidity",
@@ -95,16 +95,11 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
     "airquality":  {"downquick": -5,   "downslow": -2,   "upslow": 2,   "upquick": 5}
   };
   var positionNumbers = {
-    "temperature": [0.85, 0.86, 0.31, 0.99, 0.29, 0.95],
-    "humidity":    [0.77, 0.78, 0.59, 0.99, 0.57, 0.95],
-    "barometric":  [0.69, 0.70, 0.21, 0.79, 0.19, 0.75],
-    "uv":          [0.61, 0.62, 0.69, 0.79, 0.67, 0.75],
-    "airquality":  [0.53, 0.54, 0.46, 0.59, 0.44, 0.55]
-    //"temperature": [0.85, 0.86, 0.34, 0.99, 0.32, 0.95],
-    //"humidity":    [0.75, 0.76, 0.56, 0.99, 0.54, 0.95],
-    //"barometric":  [0.65, 0.66, 0.24, 0.79, 0.22, 0.75],
-    //"uv":          [0.55, 0.56, 0.66, 0.79, 0.64, 0.75],
-    //"airquality":  [0.45, 0.46, 0.46, 0.59, 0.44, 0.55]
+    "temperature": [0.85, 0.87, 0.47, 0.99, 0.45, 0.95],
+    "humidity":    [0.74, 0.76, 0.47, 0.84, 0.45, 0.80],
+    "barometric":  [0.65, 0.65, 0.27, 0.79, 0.25, 0.75],
+    "uv":          [0.54, 0.56, 0.63, 0.79, 0.61, 0.75],
+    "airquality":  [0.43, 0.45, 0.40, 0.59, 0.38, 0.55]
   };
   var currentCharacter = {
     "temperature": "°",
@@ -196,8 +191,8 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         _ctx,
         _Sensor[dictKey],
         _widgetWidth,
-        _widgetWidth*positionNumbers[dictKey][2],
-        _widgetHeight*positionNumbers[dictKey][3],
+        _widgetWidth*positionNumbers[dictKey][2], // x position
+        _widgetHeight*positionNumbers[dictKey][3], // y position
         currentCharacter[dictKey]
       );
     // Draw the trend arrow for the current sensor and historic data stored
@@ -206,8 +201,8 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
         _ctx,
         _Sensor[dictKey],
         _widgetWidth,
-        _widgetWidth*positionNumbers[dictKey][4],
-        _widgetHeight*positionNumbers[dictKey][5],
+        _widgetWidth*positionNumbers[dictKey][4], // x position
+        _widgetHeight*positionNumbers[dictKey][5], // y position
         trendLimits[dictKey]["downquick"],
         trendLimits[dictKey]["downslow"],
         trendLimits[dictKey]["upslow"],
@@ -216,13 +211,24 @@ function drawSensorWidget(_ctx,_Sensor,_widgetWidth,_widgetHeight){
   }
 }
 
-function drawSensorLabel(_ctx,_box,_width,_height,_label,_maxMultiplier,_thickDivider){
+function drawSensorLabel(_ctx,_curveRadius,_width,_height,_label,_maxMultiplier,_thickDivider){
   var _thickness = _width/_thickDivider;
-  var textAngle = (Math.PI-(Math.PI*_maxMultiplier));
-  var rotateAngle = (Math.PI-(Math.PI*_maxMultiplier))-(Math.PI/2);
-  // This is the location of the end of the curve of the sensor
-  var _x = (_width/2)-_box*Math.cos(Math.PI-(Math.PI*_maxMultiplier));
-  var _y = _height-Math.sin(Math.PI-(Math.PI*_maxMultiplier))*_box;
+  // This is the origin location at the top of the curve
+  var _x = (_width/2);
+  var _y = ( _height);
+  // This is where the end of the curve is, X will only decrease, y will only increase
+  var _x = _x - _curveRadius*Math.sin(_maxMultiplier*Math.PI - Math.PI/2);
+  var _y = _y - _curveRadius*Math.cos(_maxMultiplier*Math.PI - Math.PI/2);
+  // Adjust for the thickness of the curve from where to endpoint would be if it had no thickness
+  //
+  //     Original
+  //     Endpoint
+  //      *____>
+  //        .   |
+  //          . |
+  //            v
+  var _x = _x + _thickness*Math.sin(_maxMultiplier*Math.PI - Math.PI/2);
+  var _y = _y + _thickness*Math.cos(_maxMultiplier*Math.PI - Math.PI/2);
   // Now create a right triangle of height and width based on the length
   // of the string to be displayed and it also has to do with the angle
   // of the curve we are labeling.
@@ -234,31 +240,18 @@ function drawSensorLabel(_ctx,_box,_width,_height,_label,_maxMultiplier,_thickDi
   //       TX.....       . C Angle
   //        |  ____________.X___________
   //   C Angle - PI/2
-  // x = length = Text Length * cos(C Angle - PI/2)
-  // y = height = Text Length * sin(C Angle - PI/2)
-  var _translateX = ((_label.length+1)*_width/61) * Math.sin(textAngle);
-  var _translateY = ((_label.length+1)*_width/61) * Math.cos(textAngle);
-  // Next we need to adjust for the thickness of the curve we are trying to align to
-  //               .   
-  //              |  . Thickness
-  //              |    .
-  //              |______X   C Angle
   //
-  // X Additive Offset = sin(C)*Thickness
-  // Y Additive Offset = cos(C)*Thickness
-  var _thicknessXAdditive = _thickness * Math.sin(textAngle);
-  var _thicknessYAdditive = _thickness * Math.cos(textAngle);
-  // Now combine the original location and the translation due to the
-  // text length
-  var _x = _x - _translateX + _thicknessXAdditive;
-  var _y = _y + _translateY + _thicknessYAdditive;
+  //   X always decreases or is 0
+  //   Y always increases or is 0
+  var _x = _x - ((_label.length+1)*_width/65) * Math.cos(_maxMultiplier*Math.PI - Math.PI/2);
+  var _y = _y + ((_label.length+1)*_width/65) * Math.sin(_maxMultiplier*Math.PI - Math.PI/2);
   // Display the Current Value
   _ctx.font = (_width/40)+"px Courier";
   _ctx.fillStyle = '#999999';
   _ctx.translate(_x, _y);
-  _ctx.rotate(rotateAngle);
+  _ctx.rotate(-(_maxMultiplier*Math.PI-Math.PI/2));
   _ctx.fillText(_label, 0, 0);
-  _ctx.rotate(-rotateAngle);
+  _ctx.rotate((_maxMultiplier*Math.PI-Math.PI/2));
   _ctx.translate(-_x, -_y);
 }
 
