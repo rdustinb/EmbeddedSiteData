@@ -5,6 +5,9 @@ import random
 import datetime
 import math
 
+#devSerialName="cu.usbmodem226541" # Mac
+devSerialName="ttyAMA0" # Linux
+
 # Commands
 _REMOTEREAD      = 0x00
 _REMOTEWRITE     = 0x01
@@ -28,7 +31,7 @@ def readHtu21dData():
     All addresses are currently hard-coded for ease of debugging.
   """
   __output_file = open(_THISDEVICE+".json", "a")
-  __ser = serial.Serial(port="/dev/cu.usbmodem226541", baudrate=115200)
+  __ser = serial.Serial(port="/dev/"+devSerialName, baudrate=115200)
   # Program which device to access
   # For the address, the LSByte as expected in the nRf devices is sent FIRST, so in the following example:
   #   __byteArray = [_LOCALWRITE,_NRFREG_TXRXADDR,0x01,0x02,0x03,0x04,0x05]
